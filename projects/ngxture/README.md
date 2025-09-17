@@ -50,6 +50,7 @@ npm install ngxture
 
 ### Animations
 
+```html
 <!-- Fade -->
 <div ngxFade [config]="{ duration: 500, easing: 'ease-in' }">
   I will fade in!
@@ -64,9 +65,11 @@ npm install ngxture
 <button ngxBounce>
   Bouncy Button
 </button>
+```
 
 ### Gestures
 
+```html
 <!-- Tap -->
 <div ngxsture-pan (panStart)="onStart($event)">
   Tap me
@@ -76,11 +79,13 @@ npm install ngxture
 <div ngxsture-swipe (swipeLeft)="onSwipeLeft($event)">
   Swipe me
 </div>
+```
 
 ### Combine Animations + Gestures
 
 ✅ Example usage
 
+```html
 <div
   ngxAnimations
   [gestures]="['tap']"
@@ -101,7 +106,7 @@ npm install ngxture
     [config]="{ opacity: 0.5, duration: 500 }"
   ></div>
 </div>
-
+```
 👉 With this setup:
 -> Each directive owns its animation logic.
 -> AnimationService coordinates play/sequence.
