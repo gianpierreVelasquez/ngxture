@@ -5,7 +5,7 @@ import { RotationAnimationConfig } from '../services/animation-util';
 import { TransformMergeService } from '../services/transform.service';
 
 @Directive({
-  selector: '[ngxRotate]',
+  selector: '[ngxRotation]',
 })
 export class RotationDirective extends BaseAnimationDirective<RotationAnimationConfig> {
   constructor(

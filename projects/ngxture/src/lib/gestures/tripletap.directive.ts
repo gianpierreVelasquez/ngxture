@@ -10,7 +10,7 @@ import { BaseGestureDirective } from './gesture-base.directive';
 import { GestureService } from '../services/gesture.service';
 
 @Directive({
-  selector: '[ngxsture-tap]',
+  selector: '[ngxsture-tripletap]',
 })
 export class TripleTapDirective extends BaseGestureDirective implements OnInit {
   @Input() config?: RecognizerOptions;

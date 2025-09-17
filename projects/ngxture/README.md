@@ -9,23 +9,25 @@ Includes services and base directives for building **gesture-driven animations**
 ## ✨ Features
 
 - 🚀 Built with **Angular 16+ standalone directives**
-- 🎭 Animations included:
-  - `appFadeAnimation`
-  - `appScaleAnimation`
-  - `appRotateAnimation`
-  - `appTranslateAnimation`
-  - `appSkewAnimation`
-  - `appColorAnimation`
-  - `appBounceAnimation`
 - 👆 Gesture directives included:
-  - `appTapGesture`
-  - `appDoubleTapGesture`
-  - `appTripleTapGesture`
-  - `appPressGesture`
-  - `appSwipeGesture`
-  - `appPanGesture`
-  - `appPinchGesture`
-  - `appRotateGesture`
+  - `ngxsture-tap`
+  - `ngxsture-doubletap`
+  - `ngxsture-tripletap`
+  - `ngxsture-press`
+  - `ngxsture-pressup`
+  - `ngxsture-swipe`
+  - `ngxsture-pan`
+  - `ngxsture-pinch`
+  - `ngxsture-rotate`
+- 🎭 Animations included:
+  - `ngxAnimation`
+  - `ngxFade`
+  - `ngxScale`
+  - `ngxRotation`
+  - `ngxTranslate`
+  - `ngxSkew`
+  - `ngxColor`
+  - `ngxBounce`
 - 🧩 Extensible base classes:
   - `BaseAnimationDirective`
   - `BaseGestureDirective`
@@ -103,8 +105,8 @@ npm install ngxture
 👉 With this setup:
 -> Each directive owns its animation logic.
 -> AnimationService coordinates play/sequence.
--> AnimationsDirective is the gesture bridge.
 
+---
 
 🤝 Contributing
 

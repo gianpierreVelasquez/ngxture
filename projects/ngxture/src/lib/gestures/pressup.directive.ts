@@ -10,7 +10,7 @@ import { BaseGestureDirective } from './gesture-base.directive';
 import { GestureService } from '../services/gesture.service';
 
 @Directive({
-  selector: '[ngxsture-press]',
+  selector: '[ngxsture-pressup]',
 })
 export class PressUpDirective extends BaseGestureDirective implements OnInit {
   @Input() config?: RecognizerOptions;
