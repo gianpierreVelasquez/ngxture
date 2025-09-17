@@ -13,7 +13,7 @@ import { BaseAnimationDirective } from './animation-base.directive';
 import { GestureService } from '../services';
 
 @Directive({
-  selector: '[ngxAnimations]',
+  selector: '[ngxAnimation]',
 })
 export class AnimationDirective implements AfterContentInit, OnDestroy {
   @Input() gestures: string[] = ['tap'];

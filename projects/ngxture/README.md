@@ -1,24 +1,112 @@
-# Ngxture
+# 🎬 Angular Animations & Gestures Directives Library
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.0.
+A lightweight and modular **Angular directives library** that provides ready-to-use **animations** (fade, scale, rotate, translate, skew, color, bounce) and **gesture directives** (tap, double-tap, press, swipe, pan, pinch, rotate, etc.).
 
-## Code scaffolding
+Includes services and base directives for building **gesture-driven animations**.
 
-Run `ng generate component component-name --project ngxture` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngxture`.
-> Note: Don't forget to add `--project ngxture` or else it will be added to the default project in your `angular.json` file. 
+---
 
-## Build
+## ✨ Features
 
-Run `ng build ngxture` to build the project. The build artifacts will be stored in the `dist/` directory.
+- 🚀 Built with **Angular 16+ standalone directives**
+- 🎭 Animations included:
+  - `appFadeAnimation`
+  - `appScaleAnimation`
+  - `appRotateAnimation`
+  - `appTranslateAnimation`
+  - `appSkewAnimation`
+  - `appColorAnimation`
+  - `appBounceAnimation`
+- 👆 Gesture directives included:
+  - `appTapGesture`
+  - `appDoubleTapGesture`
+  - `appTripleTapGesture`
+  - `appPressGesture`
+  - `appSwipeGesture`
+  - `appPanGesture`
+  - `appPinchGesture`
+  - `appRotateGesture`
+- 🧩 Extensible base classes:
+  - `BaseAnimationDirective`
+  - `BaseGestureDirective`
+- 📱 Services:
+  - `GestureService` (HammerJS manager + recognizers)
+  - `AnimationService` (bridge gestures → animations)
+- ⚡ Optimized build with **ESM output** and tree-shaking support
 
-## Publishing
+---
 
-After building your library with `ng build ngxture`, go to the dist folder `cd dist/ngxture` and run `npm publish`.
+## 📦 Installation
 
-## Running unit tests
+```bash
+npm install ngxture
+```
 
-Run `ng test ngxture` to execute the unit tests via [Karma](https://karma-runner.github.io).
+---
 
-## Further help
+## 🚀 Usage
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+### Animations
+
+<!-- Fade -->
+<div ngxFade [config]="{ duration: 500, easing: 'ease-in' }">
+  I will fade in!
+</div>
+
+<!-- Rotate -->
+<div ngxRotate [config]="{ degrees: 90, duration: 400 }">
+  I will rotate!
+</div>
+
+<!-- Bounce -->
+<button ngxBounce>
+  Bouncy Button
+</button>
+
+### Gestures
+
+<!-- Tap -->
+<div ngxsture-pan (panStart)="onStart($event)">
+  Tap me
+</div>
+
+<!-- Swipe -->
+<div ngxsture-swipe (swipeLeft)="onSwipeLeft($event)">
+  Swipe me
+</div>
+
+### Combine Animations + Gestures
+
+✅ Example usage
+
+<div
+  ngxAnimations
+  [gestures]="['tap']"
+  [sequence]="true"
+>
+  <div
+    ngxScale
+    [config]="{ scale: 1.3, duration: 300 }"
+  ></div>
+
+  <div
+    ngxRotate
+    [config]="{ degrees: 45, duration: 400 }"
+  ></div>
+
+  <div
+    ngxFade
+    [config]="{ opacity: 0.5, duration: 500 }"
+  ></div>
+</div>
+
+👉 With this setup:
+-> Each directive owns its animation logic.
+-> AnimationService coordinates play/sequence.
+-> AnimationsDirective is the gesture bridge.
+
+
+🤝 Contributing
+
+Contributions are welcome!
+Please open an issue [GitHub Issue](https://github.com/gianpierreVelasquez/ngxture/issues) or PR on [GitHub PR](https://github.com/gianpierreVelasquez/ngxture/pulls)
