@@ -1,30 +1,50 @@
-import { Directive, ElementRef, EventEmitter, OnDestroy } from '@angular/core';
+import { Directive, ElementRef, Input, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { GestureService } from '../services/gesture.service';
 import { GestureType } from '../services/gesture-util';
 
 @Directive()
 export abstract class BaseGestureDirective implements OnDestroy {
-  private subs: Subscription[] = [];
+  @Input() gestures: GestureType[] = [];
+  @Input() gestureOptions?: RecognizerOptions;
+  @Input() onMultiple?: (gesture: string, event: any) => void;
+
+  protected subscriptions: Subscription[] = [];
 
   constructor(
-    protected el: ElementRef,
+    protected el: ElementRef<HTMLElement>,
     protected gestureService: GestureService
   ) {}
 
-  protected listen(
+  protected subscribeEvent(
     event: string,
-    emitter: EventEmitter<HammerInput>,
     type: GestureType,
-    config: RecognizerOptions
+    config: Partial<RecognizerOptions>,
+    callback: (ev: any) => void
   ) {
+    const cfg = config || this.gestureOptions;
     const sub = this.gestureService
-      .on(event, this.el.nativeElement, type, config)
-      .subscribe((e) => emitter.emit(e));
-    this.subs.push(sub);
+      .on(event, this.el.nativeElement, type, cfg)
+      .subscribe((ev) => {
+        callback(ev);
+        this.onMultiple?.(event, ev);
+      });
+    this.subscriptions.push(sub);
+  }
+
+  protected subscribeMultiple(
+    events: string[],
+    type: GestureType,
+    config: Partial<RecognizerOptions>
+  ) {
+    const cfg = config || this.gestureOptions;
+    const sub = this.gestureService
+      .onMultiple(events, this.el, type, cfg)
+      .subscribe(({ event, payload }) => this.onMultiple?.(event, payload));
+    this.subscriptions.push(sub);
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach((s) => s.unsubscribe());
+    this.subscriptions.forEach((s) => s.unsubscribe());
   }
 }

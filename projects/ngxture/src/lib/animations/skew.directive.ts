@@ -1,35 +1,25 @@
-import { Directive, ElementRef } from '@angular/core';
-import { animate, AnimationBuilder, style } from '@angular/animations';
+// src/lib/animations/skew.directive.ts
+import { Directive, ElementRef, Input } from '@angular/core';
 import { BaseAnimationDirective } from './animation-base.directive';
-import { SkewAnimationConfig } from '../services/animation-util';
-import { TransformMergeService } from '../services/transform.service';
+import { AnimationService } from '../services';
+import { TransformParts } from '../services/transform-util';
 
-@Directive({
-  selector: '[ngxSkew]',
-})
-export class SkewDirective extends BaseAnimationDirective<SkewAnimationConfig> {
-  constructor(
-    el: ElementRef<HTMLElement>,
-    builder: AnimationBuilder,
-    transformMerge: TransformMergeService
-  ) {
-    super(el, builder, transformMerge);
+@Directive({ selector: '[ngSkew]' })
+export class SkewDirective extends BaseAnimationDirective {
+  @Input() skewX = 0;
+  @Input() skewY = 0;
+
+  constructor(el: ElementRef<HTMLElement>, animationService: AnimationService) {
+    super(el, animationService);
   }
 
-  protected buildFactory(config: SkewAnimationConfig) {
-    const duration = config.duration ?? 300;
-    const easing = config.easing ?? 'ease-in-out';
-    const x = config.x ?? 0;
-    const y = config.y ?? 0;
+  protected mapGestureToParts(ev: any): Partial<TransformParts> | null {
+    if (!ev) return null;
 
-    const transformStr = this.transformMerge.setTransform(
-      this.el.nativeElement,
-      'skew',
-      `skew(${x}deg, ${y}deg)`
-    );
+    return { skewX: this.skewX, skewY: this.skewY };
+  }
 
-    return this.builder.build([
-      animate(`${duration}ms ${easing}`, style({ transform: transformStr })),
-    ]);
+  protected getStaticParts(): Partial<TransformParts> | null {
+    return { skewX: this.skewX, skewY: this.skewY };
   }
 }

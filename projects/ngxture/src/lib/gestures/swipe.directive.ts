@@ -1,37 +1,54 @@
 import {
   Directive,
-  EventEmitter,
-  Output,
   ElementRef,
+  EventEmitter,
   Input,
   OnInit,
+  Output,
 } from '@angular/core';
 import { BaseGestureDirective } from './gesture-base.directive';
-import { GestureService } from '../services/gesture.service';
+import { GestureService } from '../services';
 
-@Directive({
-  selector: '[ngxsture-swipe]',
-})
+@Directive({ selector: '[ngxsture-swipe]' })
 export class SwipeDirective extends BaseGestureDirective implements OnInit {
-  @Input() config?: RecognizerOptions;
+  @Output() swipe = new EventEmitter<any>();
+  @Output() swipeLeft = new EventEmitter<any>();
+  @Output() swipeRight = new EventEmitter<any>();
+  @Output() swipeUp = new EventEmitter<any>();
+  @Output() swipeDown = new EventEmitter<any>();
 
-  @Output() swipe = new EventEmitter<HammerInput>();
-  @Output() swipeLeft = new EventEmitter<HammerInput>();
-  @Output() swipeRight = new EventEmitter<HammerInput>();
-  @Output() swipeUp = new EventEmitter<HammerInput>();
-  @Output() swipeDown = new EventEmitter<HammerInput>();
+  @Input() options?: Partial<RecognizerOptions>;
 
-  constructor(el: ElementRef, gestureService: GestureService) {
+  constructor(el: ElementRef<HTMLElement>, gestureService: GestureService) {
     super(el, gestureService);
+    this.gestures = ['swipe'];
   }
 
-  // Available Methods
-  // swipeleft, swiperight, swipeup, swipedown
-  ngOnInit() {
-    this.listen('swipe', this.swipe, 'swipe', this.config);
-    this.listen('swipeleft', this.swipeLeft, 'swipe', this.config);
-    this.listen('swiperight', this.swipeRight, 'swipe', this.config);
-    this.listen('swipeup', this.swipeUp, 'swipe', this.config);
-    this.listen('swipedown', this.swipeDown, 'swipe', this.config);
+  ngOnInit(): void {
+    const events = ['swipe', 'swipeleft', 'swiperight', 'swipeup', 'swipedown'];
+    if (this.onMultiple) {
+      this.subscribeMultiple(events, 'swipe', this.options);
+    } else {
+      events.forEach((e) =>
+        this.subscribeEvent(e, 'swipe', this.options, () => this.getEmitter(e))
+      );
+    }
+  }
+
+  private getEmitter(event: string): EventEmitter<any> | undefined {
+    switch (event) {
+      case 'swipe':
+        return this.swipe;
+      case 'swipeleft':
+        return this.swipeLeft;
+      case 'swiperight':
+        return this.swipeRight;
+      case 'swipeup':
+        return this.swipeUp;
+      case 'swipedown':
+        return this.swipeDown;
+      default:
+        return undefined;
+    }
   }
 }

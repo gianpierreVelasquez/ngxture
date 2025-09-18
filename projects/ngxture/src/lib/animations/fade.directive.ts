@@ -1,16 +1,24 @@
-import { Directive } from '@angular/core';
+import { Directive, ElementRef, Input } from '@angular/core';
 import { BaseAnimationDirective } from './animation-base.directive';
-import { FadeAnimationConfig } from '../services/animation-util';
+import { AnimationService } from '../services';
 
-@Directive({
-  selector: '[ngxFade]',
-})
-export class FadeDirective extends BaseAnimationDirective<FadeAnimationConfig> {
-  protected buildFactory(config: FadeAnimationConfig) {
-    const duration = config.duration ?? 300;
-    const easing = config.easing ?? 'ease-in-out';
-    const opacity = config.opacity ?? 0;
+@Directive({ selector: '[ngFade]' })
+export class FadeDirective extends BaseAnimationDirective {
+  @Input() opacity = 1;
 
-    return this.animateToStyle(duration, easing, { opacity });
+  constructor(el: ElementRef<HTMLElement>, animationService: AnimationService) {
+    super(el, animationService);
+  }
+
+  protected mapGestureToParts(ev: any): Partial<CSSStyleDeclaration> | null {
+    if (!ev) return null;
+
+    const o = typeof ev.alpha === 'number' ? ev.alpha : this.opacity;
+
+    return { opacity: String(o) };
+  }
+
+  protected getStaticParts(): Partial<CSSStyleDeclaration> | null {
+    return { opacity: String(this.opacity) };
   }
 }

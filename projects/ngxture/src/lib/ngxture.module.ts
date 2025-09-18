@@ -1,20 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AnimationService, GestureService, TransformMergeService } from './services';
 import {
-  DoubleTapDirective,
+  AnimationService,
+  GestureService,
+  TransformMergeService,
+} from './services';
+import {
   PanDirective,
   PinchDirective,
   PressDirective,
-  PressUpDirective,
   RotateDirective,
   SwipeDirective,
   TapDirective,
-  TripleTapDirective,
 } from './gestures';
 import {
-  AnimationDirective,
   BounceDirective,
   ColorDirective,
   FadeDirective,
@@ -29,14 +29,10 @@ const DIRECTIVES = [
   PanDirective,
   PinchDirective,
   PressDirective,
-  PressUpDirective,
   RotateDirective,
   SwipeDirective,
   TapDirective,
-  DoubleTapDirective,
-  TripleTapDirective,
   // Animations
-  AnimationDirective,
   BounceDirective,
   ColorDirective,
   FadeDirective,

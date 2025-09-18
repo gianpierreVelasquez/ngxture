@@ -1,35 +1,26 @@
-import { Directive, ElementRef } from '@angular/core';
-import { animate, AnimationBuilder, style } from '@angular/animations';
+import { Directive, ElementRef, Input } from '@angular/core';
 import { BaseAnimationDirective } from './animation-base.directive';
-import { TranslateAnimationConfig } from '../services/animation-util';
-import { TransformMergeService } from '../services/transform.service';
+import { AnimationService } from '../services';
+import { TransformParts } from '../services/transform-util';
 
-@Directive({
-  selector: '[ngxTranslate]',
-})
-export class TranslateDirective extends BaseAnimationDirective<TranslateAnimationConfig> {
-  constructor(
-    el: ElementRef<HTMLElement>,
-    builder: AnimationBuilder,
-    transformMerge: TransformMergeService
-  ) {
-    super(el, builder, transformMerge);
+@Directive({ selector: '[ngTranslate]' })
+export class TranslateDirective extends BaseAnimationDirective {
+  @Input() x = 0;
+  @Input() y = 0;
+
+  constructor(el: ElementRef<HTMLElement>, animationService: AnimationService) {
+    super(el, animationService);
   }
 
-  protected buildFactory(config: TranslateAnimationConfig) {
-    const duration = config.duration ?? 300;
-    const easing = config.easing ?? 'ease-out';
-    const x = config.x ?? 0;
-    const y = config.y ?? 0;
+  protected mapGestureToParts(ev: any): Partial<TransformParts> | null {
+    if (!ev) return null;
+    const tx = typeof ev.deltaX === 'number' ? ev.deltaX : this.x;
+    const ty = typeof ev.deltaY === 'number' ? ev.deltaY : this.y;
 
-    const transformStr = this.transformMerge.setTransform(
-      this.el.nativeElement,
-      'translate',
-      `translate(${x}px, ${y}px)`
-    );
+    return { translateX: tx, translateY: ty };
+  }
 
-    return this.builder.build([
-      animate(`${duration}ms ${easing}`, style({ transform: transformStr })),
-    ]);
+  protected getStaticParts(): Partial<TransformParts> | null {
+    return { translateX: this.x, translateY: this.y };
   }
 }

@@ -13,19 +13,42 @@ import { GestureService } from '../services/gesture.service';
   selector: '[ngxsture-rotate]',
 })
 export class RotateDirective extends BaseGestureDirective {
-  @Input() config?: RecognizerOptions;
+  @Output() rotateStart = new EventEmitter<any>();
+  @Output() rotateMove = new EventEmitter<any>();
+  @Output() rotateEnd = new EventEmitter<any>();
+  @Output() rotateCancel = new EventEmitter<any>();
 
-  @Output() rotateStart = new EventEmitter<HammerInput>();
-  @Output() rotateMove = new EventEmitter<HammerInput>();
-  @Output() rotateEnd = new EventEmitter<HammerInput>();
+  @Input() options?: RecognizerOptions;
 
-  constructor(el: ElementRef, gestureService: GestureService) {
+  constructor(el: ElementRef<HTMLElement>, gestureService: GestureService) {
     super(el, gestureService);
+    this.gestures = ['rotate'];
   }
 
-  ngOnInit() {
-    this.listen('rotatestart', this.rotateStart, 'rotate', this.config);
-    this.listen('rotatemove', this.rotateMove, 'rotate', this.config);
-    this.listen('rotateend', this.rotateEnd, 'rotate', this.config);
+  ngOnInit(): void {
+    const events = ['rotatestart', 'rotatemove', 'rotateend', 'rotatecancel'];
+
+    if (this.onMultiple) {
+      this.subscribeMultiple(events, 'rotate', this.options);
+    } else {
+      events.forEach((e) =>
+        this.subscribeEvent(e, 'rotate', this.options, () => this.getEmitter(e))
+      );
+    }
+  }
+
+  private getEmitter(event: string): EventEmitter<any> | null {
+    switch (event) {
+      case 'rotatestart':
+        return this.rotateStart;
+      case 'rotatemove':
+        return this.rotateMove;
+      case 'rotateend':
+        return this.rotateEnd;
+      case 'rotatecancel':
+        return this.rotateCancel;
+      default:
+        return null;
+    }
   }
 }

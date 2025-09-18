@@ -1,34 +1,28 @@
-import { Directive, ElementRef } from '@angular/core';
-import { animate, AnimationBuilder, style } from '@angular/animations';
+// src/lib/animations/scale.directive.ts
+import { Directive, ElementRef, Input } from '@angular/core';
 import { BaseAnimationDirective } from './animation-base.directive';
-import { ScaleAnimationConfig } from '../services/animation-util';
-import { TransformMergeService } from '../services/transform.service';
+import { AnimationService } from '../services';
+import { TransformParts } from '../services/transform-util';
 
-@Directive({
-  selector: '[ngxScale]',
-})
-export class ScaleDirective extends BaseAnimationDirective<ScaleAnimationConfig> {
-  constructor(
-    protected override el: ElementRef<HTMLElement>,
-    protected override builder: AnimationBuilder,
-    protected override transformMerge: TransformMergeService
-  ) {
-    super(el, builder, transformMerge);
+@Directive({ selector: '[ngScale]' })
+export class ScaleDirective extends BaseAnimationDirective {
+  @Input() scale = 1;
+  @Input() scaleSensitivity = 1;
+
+  constructor(el: ElementRef<HTMLElement>, animationService: AnimationService) {
+    super(el, animationService);
   }
 
-  protected buildFactory(config: ScaleAnimationConfig) {
-    const duration = config.duration ?? 300;
-    const easing = config.easing ?? 'ease-out';
-    const scale = config.scale ?? 1.2;
+  protected mapGestureToParts(ev: any): Partial<TransformParts> | null {
+    if (ev == null) return null;
+    const s =
+      typeof ev.scale === 'number'
+        ? ev.scale * this.scaleSensitivity
+        : this.scale;
+    return { scale: s };
+  }
 
-    const transformStr = this.transformMerge.setTransform(
-      this.el.nativeElement,
-      'scale',
-      `scale(${scale})`
-    );
-
-    return this.builder.build([
-      animate(`${duration}ms ${easing}`, style({ transform: transformStr })),
-    ]);
+  protected getStaticParts(): Partial<TransformParts> | null {
+    return { scale: this.scale };
   }
 }

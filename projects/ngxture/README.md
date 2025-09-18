@@ -4,11 +4,17 @@ A lightweight and modular **Angular directives library** that provides ready-to-
 
 Includes services and base directives for building **gesture-driven animations**.
 
+**Also support Angular 8**
+✅ For Angular 8 projects simply import 'hammerjs' in polyfills.ts or main.ts.
+
+**Angular 20+**
+✅ fully supported, Vite SSR safe
+
 ---
 
 ## ✨ Features
 
-- 🚀 Built with **Angular 16+ standalone directives**
+- 🚀 Built with **Angular 16 directives**
 - 👆 Gesture directives included:
   - `ngxsture-tap`
   - `ngxsture-doubletap`
@@ -20,7 +26,6 @@ Includes services and base directives for building **gesture-driven animations**
   - `ngxsture-pinch`
   - `ngxsture-rotate`
 - 🎭 Animations included:
-  - `ngxAnimation`
   - `ngxFade`
   - `ngxScale`
   - `ngxRotation`
@@ -28,12 +33,7 @@ Includes services and base directives for building **gesture-driven animations**
   - `ngxSkew`
   - `ngxColor`
   - `ngxBounce`
-- 🧩 Extensible base classes:
-  - `BaseAnimationDirective`
-  - `BaseGestureDirective`
-- 📱 Services:
-  - `GestureService` (HammerJS manager + recognizers)
-  - `AnimationService` (bridge gestures → animations)
+
 - ⚡ Optimized build with **ESM output** and tree-shaking support
 
 ---

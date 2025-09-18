@@ -1,43 +1,75 @@
 import {
   Directive,
-  ElementRef,
   EventEmitter,
+  Output,
   Input,
   OnInit,
-  Output,
+  ElementRef,
 } from '@angular/core';
-import { BaseGestureDirective } from './gesture-base.directive';
 import { GestureService } from '../services/gesture.service';
+import { BaseGestureDirective } from './gesture-base.directive';
 
-@Directive({
-  selector: '[ngxsture-pan]',
-})
+@Directive({ selector: '[ngxsture-pan]' })
 export class PanDirective extends BaseGestureDirective implements OnInit {
-  @Input() config?: RecognizerOptions;
+  @Output() panStart = new EventEmitter<any>();
+  @Output() panMove = new EventEmitter<any>();
+  @Output() panEnd = new EventEmitter<any>();
+  @Output() panUp = new EventEmitter<any>();
+  @Output() panDown = new EventEmitter<any>();
+  @Output() panLeft = new EventEmitter<any>();
+  @Output() panRight = new EventEmitter<any>();
+  @Output() panCancel = new EventEmitter<any>();
 
-  @Output() panStart = new EventEmitter<HammerInput>();
-  @Output() panMove = new EventEmitter<HammerInput>();
-  @Output() panEnd = new EventEmitter<HammerInput>();
-  @Output() panCancel = new EventEmitter<HammerInput>();
-  @Output() panLeft = new EventEmitter<HammerInput>();
-  @Output() panRight = new EventEmitter<HammerInput>();
-  @Output() panUp = new EventEmitter<HammerInput>();
-  @Output() panDown = new EventEmitter<HammerInput>();
+  @Input() options?: Partial<RecognizerOptions>;
 
-  constructor(el: ElementRef, gestureService: GestureService) {
+  constructor(el: ElementRef<HTMLElement>, gestureService: GestureService) {
     super(el, gestureService);
+    this.gestures = ['pan'];
   }
 
-  // Available Methods
-  // panstart, panmove, panend, pancancel, panleft, panright, panup, pandown
-  ngOnInit() {
-    this.listen('panstart', this.panStart, 'pan', this.config);
-    this.listen('panmove', this.panMove, 'pan', this.config);
-    this.listen('panend', this.panEnd, 'pan', this.config);
-    this.listen('pancancel', this.panCancel, 'pan', this.config);
-    this.listen('panleft', this.panLeft, 'pan', this.config);
-    this.listen('panright', this.panRight, 'pan', this.config);
-    this.listen('panup', this.panUp, 'pan', this.config);
-    this.listen('pandown', this.panDown, 'pan', this.config);
+  ngOnInit(): void {
+    const events = [
+      'panstart',
+      'panmove',
+      'panend',
+      'panup',
+      'pandown',
+      'panleft',
+      'panright',
+      'pancancel',
+    ];
+
+    if (this.onMultiple) {
+      this.subscribeMultiple(events, 'pan', this.options);
+    } else {
+      events.forEach((event) =>
+        this.subscribeEvent(event, 'pan', this.options, () =>
+          this.getEmitter(event)
+        )
+      );
+    }
+  }
+
+  private getEmitter(event: string): EventEmitter<any> | undefined {
+    switch (event) {
+      case 'panstart':
+        return this.panStart;
+      case 'panmove':
+        return this.panMove;
+      case 'panend':
+        return this.panEnd;
+      case 'panup':
+        return this.panUp;
+      case 'pandown':
+        return this.panDown;
+      case 'panleft':
+        return this.panLeft;
+      case 'panright':
+        return this.panRight;
+      case 'pancancel':
+        return this.panCancel;
+      default:
+        return undefined;
+    }
   }
 }

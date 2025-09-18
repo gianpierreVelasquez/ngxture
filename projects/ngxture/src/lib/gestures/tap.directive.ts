@@ -9,19 +9,35 @@ import {
 import { BaseGestureDirective } from './gesture-base.directive';
 import { GestureService } from '../services/gesture.service';
 
-@Directive({
-  selector: '[ngxsture-tap]',
-})
+@Directive({ selector: '[ngxsture-tap]' })
 export class TapDirective extends BaseGestureDirective implements OnInit {
-  @Input() config?: RecognizerOptions;
+  @Output() tap = new EventEmitter<any>();
+  @Output() doubleTap = new EventEmitter<any>();
+  @Output() tripleTap = new EventEmitter<any>();
 
-  @Output() tap = new EventEmitter<HammerInput>();
+  @Input() options?: Partial<RecognizerOptions>;
 
-  constructor(el: ElementRef, gestureService: GestureService) {
+  constructor(el: ElementRef<HTMLElement>, gestureService: GestureService) {
     super(el, gestureService);
+    this.gestures = ['tap', 'doubletap', 'tripletap'];
   }
 
-  ngOnInit() {
-    this.listen('tap', this.tap, 'tap', this.config);
+  ngOnInit(): void {
+    const events = ['tap', 'doubletap', 'tripletap'];
+
+    if (this.onMultiple) {
+      this.subscribeMultiple(events, 'tap', this.options);
+    } else {
+      events.forEach(e => this.subscribeEvent(e, 'tap', this.options, () => this.getEmitter(e)));
+    }
+  }
+
+  private getEmitter(event: string): EventEmitter<any> | undefined {
+    switch (event) {
+      case 'tap': return this.tap;
+      case 'doubletap': return this.doubleTap;
+      case 'tripletap': return this.tripleTap;
+      default: return undefined;
+    }
   }
 }

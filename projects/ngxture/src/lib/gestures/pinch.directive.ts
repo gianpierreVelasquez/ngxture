@@ -1,39 +1,61 @@
 import {
   Directive,
-  EventEmitter,
-  Output,
   ElementRef,
+  EventEmitter,
   Input,
   OnInit,
+  Output,
 } from '@angular/core';
 import { BaseGestureDirective } from './gesture-base.directive';
-import { GestureService } from '../services/gesture.service';
+import { GestureService } from '../services';
 
-@Directive({
-  selector: '[ngxsture-pinch]',
-})
+@Directive({ selector: '[ngxsture-pinch]' })
 export class PinchDirective extends BaseGestureDirective implements OnInit {
-  @Input() config?: RecognizerOptions;
+  @Output() pinchStart = new EventEmitter<any>();
+  @Output() pinchMove = new EventEmitter<any>();
+  @Output() pinchEnd = new EventEmitter<any>();
+  @Output() pinchCancel = new EventEmitter<any>();
+  @Output() pinchIn = new EventEmitter<any>();
+  @Output() pinchOut = new EventEmitter<any>();
 
-  @Output() pinchStart = new EventEmitter<HammerInput>();
-  @Output() pinchMove = new EventEmitter<HammerInput>();
-  @Output() pinchEnd = new EventEmitter<HammerInput>();
-  @Output() pinchCancel = new EventEmitter<HammerInput>();
-  @Output() pinchIn = new EventEmitter<HammerInput>();
-  @Output() pinchOut = new EventEmitter<HammerInput>();
+  @Input() options?: Partial<RecognizerOptions>;
 
-  constructor(el: ElementRef, gestureService: GestureService) {
+  constructor(el: ElementRef<HTMLElement>, gestureService: GestureService) {
     super(el, gestureService);
+    this.gestures = ['pinch'];
   }
 
-  // Available Methods
-  // pinchstart, pinchmove, pinchend, pinchcancel, pinchin, pinchout
-  ngOnInit() {
-    this.listen('pinchstart', this.pinchStart, 'pinch', this.config);
-    this.listen('pinchmove', this.pinchMove, 'pinch', this.config);
-    this.listen('pinchend', this.pinchEnd, 'pinch', this.config);
-    this.listen('pinchcancel', this.pinchCancel, 'pinch', this.config);
-    this.listen('pinchin', this.pinchIn, 'pinch', this.config);
-    this.listen('pinchout', this.pinchOut, 'pinch', this.config);
+  ngOnInit(): void {
+    const events = [
+      'pinchstart',
+      'pinchmove',
+      'pinchend',
+      'pinchcancel',
+      'pinchin',
+      'pinchout',
+    ];
+
+    const options = this.options || this.gestureOptions;
+
+    if (this.onMultiple) {
+      this.subscribeMultiple(events, 'pinch', options);
+    } else {
+      events.forEach((e) =>
+        this.subscribeEvent(e, 'pinch', this.options, () => this.getEmitter(e))
+      );
+    }
+  }
+
+  private getEmitter(event: string): EventEmitter<any> | undefined {
+    switch (event) {
+      case 'pinchstart':
+        return this.pinchStart;
+      case 'pinchmove':
+        return this.pinchMove;
+      case 'pinchend':
+        return this.pinchEnd;
+      default:
+        return undefined;
+    }
   }
 }

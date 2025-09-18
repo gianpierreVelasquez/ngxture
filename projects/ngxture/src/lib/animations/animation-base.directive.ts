@@ -1,77 +1,55 @@
-import { Directive, ElementRef, Input, OnDestroy } from '@angular/core';
-import {
-  AnimationBuilder,
-  AnimationFactory,
-  AnimationPlayer,
-  animate,
-  style,
-  keyframes,
-} from '@angular/animations';
-import { BaseAnimationConfig } from '../services/animation-util';
-import { TransformMergeService } from '../services/transform.service';
+import { Directive, ElementRef, Input, OnDestroy, OnInit } from '@angular/core';
+import { AnimationService } from '../services';
+import { GestureType } from '../services/gesture-util';
+import { TransformParts } from '../services/transform-util';
 
 @Directive()
-export abstract class BaseAnimationDirective<
-  T extends BaseAnimationConfig = BaseAnimationConfig
-> implements OnDestroy
-{
-  @Input() config!: T;
-
-  protected player?: AnimationPlayer;
+export abstract class BaseAnimationDirective implements OnInit, OnDestroy {
+  @Input() gestureType?: GestureType;
+  @Input() gestureEvents?: string[];
+  @Input() gestureOptions?: any;
 
   constructor(
     protected el: ElementRef<HTMLElement>,
-    protected builder: AnimationBuilder,
-    protected transformMerge: TransformMergeService
+    protected animationService: AnimationService
   ) {}
 
-  protected abstract buildFactory(config: T): AnimationFactory;
-
-  async playAnimation(): Promise<void> {
-    if (!this.config) return;
-
-    if (this.config.delay && this.config.delay > 0) {
-      await new Promise((r) => setTimeout(r, this.config.delay));
+  ngOnInit(): void {
+    const hasGestureBinding =
+      !!this.gestureType && !!this.gestureEvents?.length;
+    if (hasGestureBinding) {
+      this.animationService.applyGestureTransform(
+        this.el,
+        this.gestureType!,
+        this.gestureEvents!,
+        (ev) => this.mapGestureToParts(ev),
+        this.gestureOptions
+      );
+    } else {
+      const staticPayload = this.getStaticParts();
+      if (staticPayload) {
+        this.animationService.applyTransform(this.el, staticPayload);
+      }
     }
-
-    const factory = this.buildFactory(this.config);
-    this.player = factory.create(this.el.nativeElement);
-    return new Promise<void>((resolve) => {
-      this.player!.onDone(() => {
-        try {
-          this.player!.destroy();
-        } catch {}
-        resolve();
-      });
-      this.player!.init();
-      this.player!.play();
-    });
-  }
-
-  protected animateToStyle(
-    duration = 300,
-    easing = 'ease-in-out',
-    styles: Record<string, any>
-  ): AnimationFactory {
-    return this.builder.build([
-      animate(`${duration}ms ${easing}`, style(styles)),
-    ]);
-  }
-
-  protected animateKeyframes(
-    duration = 600,
-    easing = 'ease-out',
-    frames: any[]
-  ): AnimationFactory {
-    return this.builder.build([
-      animate(`${duration}ms ${easing}`, keyframes(frames)),
-    ]);
   }
 
   ngOnDestroy(): void {
-    try {
-      this.player?.destroy();
-    } catch {}
-    this.transformMerge.clearTransforms(this.el.nativeElement);
+    this.animationService.clear(this.el);
   }
+
+  /**
+   * Map incoming gesture payload to TransformParts or CSS props.
+   * Return `null` to ignore the event.
+   */
+  protected abstract mapGestureToParts(
+    ev: any
+  ): Partial<TransformParts> | Partial<CSSStyleDeclaration> | null;
+
+  /**
+   * For non-gesture (static) usage; return a TransformParts or CSS props to apply at init.
+   */
+  protected abstract getStaticParts():
+    | Partial<TransformParts>
+    | Partial<CSSStyleDeclaration>
+    | null;
 }

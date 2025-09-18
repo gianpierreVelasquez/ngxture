@@ -1,10 +1,26 @@
 export type GestureType =
   | 'pan'
+  | 'panstart'
+  | 'panmove'
+  | 'panend'
+  | 'pancancel'
   | 'pinch'
+  | 'pinchstart'
+  | 'pinchmove'
+  | 'pinchend'
+  | 'pinchcancel'
   | 'press'
   | 'pressup'
   | 'rotate'
+  | 'rotatestart'
+  | 'rotatemove'
+  | 'rotateend'
+  | 'rotatecancel'
   | 'swipe'
+  | 'swipeleft'
+  | 'swiperight'
+  | 'swipeup'
+  | 'swipedown'
   | 'tap'
   | 'doubletap'
   | 'tripletap';
@@ -14,7 +30,7 @@ export interface GestureConfig {
   options?: RecognizerOptions;
 }
 
-export const defaultConfig: GestureConfig[] = [
+export const defaultGestureConfig: GestureConfig[] = [
   {
     type: 'pan',
     options: { direction: Hammer.DIRECTION_ALL, threshold: 10 },
@@ -33,7 +49,7 @@ export const defaultConfig: GestureConfig[] = [
   },
   {
     type: 'rotate',
-    options: {},
+    options: { enable: true },
   },
   {
     type: 'swipe',

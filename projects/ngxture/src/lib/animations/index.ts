@@ -1,5 +1,4 @@
 export * from './animation-base.directive';
-export * from './animation.directive';
 export * from './bounce.directive';
 export * from './color.directive';
 export * from './fade.directive';

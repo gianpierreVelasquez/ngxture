@@ -1,34 +1,27 @@
-import { Directive, ElementRef } from '@angular/core';
-import { animate, AnimationBuilder, style } from '@angular/animations';
+import { Directive, ElementRef, Input } from '@angular/core';
 import { BaseAnimationDirective } from './animation-base.directive';
-import { RotationAnimationConfig } from '../services/animation-util';
-import { TransformMergeService } from '../services/transform.service';
+import { AnimationService } from '../services';
+import { TransformParts } from '../services/transform-util';
 
-@Directive({
-  selector: '[ngxRotation]',
-})
-export class RotationDirective extends BaseAnimationDirective<RotationAnimationConfig> {
-  constructor(
-    el: ElementRef<HTMLElement>,
-    builder: AnimationBuilder,
-    transformMerge: TransformMergeService
-  ) {
-    super(el, builder, transformMerge);
+@Directive({ selector: '[ngRotate]' })
+export class RotationDirective extends BaseAnimationDirective {
+  @Input() degrees = 0;
+  @Input() rotateOffset = 0; // additional offset degrees
+
+  constructor(el: ElementRef<HTMLElement>, animationService: AnimationService) {
+    super(el, animationService);
   }
 
-  protected buildFactory(config: RotationAnimationConfig) {
-    const duration = config.duration ?? 300;
-    const easing = config.easing ?? 'ease-in-out';
-    const deg = config.degrees ?? 15;
+  protected mapGestureToParts(ev: any): Partial<TransformParts> | null {
+    if (ev == null) return null;
+    const deg =
+      (typeof ev.rotation === 'number' ? ev.rotation : this.degrees) +
+      this.rotateOffset;
 
-    const transformStr = this.transformMerge.setTransform(
-      this.el.nativeElement,
-      'rotate',
-      `rotate(${deg}deg)`
-    );
+    return { rotate: deg };
+  }
 
-    return this.builder.build([
-      animate(`${duration}ms ${easing}`, style({ transform: transformStr })),
-    ]);
+  protected getStaticParts(): Partial<TransformParts> | null {
+    return { rotate: this.degrees + this.rotateOffset };
   }
 }

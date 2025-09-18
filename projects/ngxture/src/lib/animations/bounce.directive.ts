@@ -1,27 +1,41 @@
-import { Directive } from '@angular/core';
-import { style } from '@angular/animations';
+import { Directive, ElementRef, Input } from '@angular/core';
 import { BaseAnimationDirective } from './animation-base.directive';
-import { BounceAnimationConfig } from '../services/animation-util';
+import { AnimationService } from '../services';
+@Directive({ selector: '[ngBounce]' })
+export class BounceDirective extends BaseAnimationDirective {
+  @Input() amplitude = 1.15;
+  @Input() times = 3;
 
-@Directive({
-  selector: '[ngxBounce]',
-})
-export class BounceDirective extends BaseAnimationDirective<BounceAnimationConfig> {
-  protected buildFactory(config: BounceAnimationConfig) {
-    const duration = config.duration ?? 600;
-    const easing = config.easing ?? 'ease-out';
-    const scale = config.scale ?? 1.2;
-    const times = Math.max(1, config.times ?? 2);
-    const frames: any[] = [];
+  constructor(el: ElementRef<HTMLElement>, animationService: AnimationService) {
+    super(el, animationService);
+  }
 
-    const step = 1 / (times * 2);
-    for (let i = 0; i < times; i++) {
-      frames.push(
-        style({ transform: `scale(${scale})`, offset: i * 2 * step })
-      );
-      frames.push(style({ transform: 'scale(1)', offset: (i * 2 + 1) * step }));
-    }
+  protected mapGestureToParts(ev: any): Partial<CSSStyleDeclaration> | null {
+    // on gesture end you might trigger a bounce; mapping depends on payload
+    // return null during gesture moves (unless you want interactive bounce)
+    return null;
+  }
 
-    return this.animateKeyframes(duration, easing, frames);
+  protected getStaticParts(): Partial<CSSStyleDeclaration> | null {
+    // bounce is an animation sequence — use transformMerge.update with animate options via AnimationService.applyTransform where needed
+    // For static init, we won't apply transform
+    return null;
+  }
+
+  /** You could create a manual method to trigger bounce animation */
+  public triggerBounce() {
+    const el = this.el.nativeElement;
+    const seq = [
+      { transform: 'scale(1)' },
+      { transform: `scale(${this.amplitude})` },
+      { transform: 'scale(1)' },
+    ];
+
+    el.animate(seq, {
+      duration: 300,
+      easing: 'cubic-bezier(.2,.8,.2,1)',
+      iterations: 1,
+      fill: 'forwards',
+    });
   }
 }

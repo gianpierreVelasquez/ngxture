@@ -1,7 +1,7 @@
 {
   "name": "ngxture",
-  "version": "0.0.1",
-  "description": "Gesture animations library for Angular & Ionic",
+  "version": "0.0.3",
+  "description": "Angular gestures + animations library with HammerJS bridge",
   "author": {
     "name": "Gianpierre Velasquez",
     "email": "gianpierre.velasquez22@gmail.com"
@@ -17,6 +17,16 @@
     "type": "git",
     "url": "https://github.com/gianpierreVelasquez/ngxture"
   },
+  "type": "module",
+  "main": "./fesm2022/ngxture.mjs",
+  "typings": "./ngxture.d.ts",
+  "exports": {
+    ".": {
+      "import": "./fesm2022/ngxture.mjs",
+      "types": "./ngxture.d.ts"
+    }
+  },
+  "sideEffects": false,
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
