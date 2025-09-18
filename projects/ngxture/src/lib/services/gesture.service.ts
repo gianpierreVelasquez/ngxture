@@ -1,5 +1,4 @@
-import { Injectable, ElementRef, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs';
 import { loadHammer, HammerConstructor } from '../utils/gesture-loader';
 import { GestureType, defaultGestureConfig } from './gesture-util';
@@ -7,29 +6,10 @@ import { GestureType, defaultGestureConfig } from './gesture-util';
 @Injectable({ providedIn: 'root' })
 export class GestureService {
   private managers = new WeakMap<HTMLElement, any>();
-  private hammerCtor: HammerConstructor | null = null;
-  private readonly isBrowser: boolean;
-
-  constructor(@Inject(PLATFORM_ID) platformId: Object) {
-    this.isBrowser = isPlatformBrowser(platformId);
-  }
 
   private getDefaultOptions(type: GestureType): any {
     const g = defaultGestureConfig.find((x) => x.type === type);
     return g?.options || {};
-  }
-
-  private async ensureHammer(): Promise<HammerConstructor> {
-    if (!this.isBrowser) {
-      throw new Error(
-        '[Ngxture] HammerJS gestures are only supported in the browser (SSR detected).'
-      );
-    }
-
-    if (!this.hammerCtor) {
-      this.hammerCtor = await loadHammer();
-    }
-    return this.hammerCtor;
   }
 
   private async getManager(element: HTMLElement): Promise<any> {
@@ -37,8 +17,8 @@ export class GestureService {
       return this.managers.get(element);
     }
 
-    const Hammer = await this.ensureHammer();
-    const manager = new (Hammer as any)(element);
+    const Hammer: HammerConstructor = await loadHammer();
+    const manager = new (Hammer as any).Manager(element);
     this.managers.set(element, manager);
 
     return manager;
@@ -93,7 +73,7 @@ export class GestureService {
     type: GestureType,
     options?: any
   ): Promise<any> {
-    const Hammer: any = await this.ensureHammer();
+    const Hammer: any = await loadHammer();
     const manager = await this.getManager(element);
 
     if (!manager.get(type)) {
@@ -101,8 +81,8 @@ export class GestureService {
         ...(this.getDefaultOptions(type) || {}),
         ...(options || {}),
       };
-      const r = this.createRecognizer(Hammer, type, opts);
-      manager.add(r);
+      const recognizer = this.createRecognizer(Hammer, type, opts);
+      manager.add(recognizer);
     }
 
     return manager;
@@ -116,16 +96,6 @@ export class GestureService {
   ): Observable<any> {
     const el = element instanceof ElementRef ? element.nativeElement : element;
 
-    if (!this.isBrowser) {
-      return new Observable((subscriber) =>
-        subscriber.error(
-          new Error(
-            `[Ngxture] Tried to subscribe to gesture "${event}" during SSR.`
-          )
-        )
-      );
-    }
-
     return new Observable<any>((subscriber) => {
       let managerRef: any;
 
@@ -133,13 +103,14 @@ export class GestureService {
         .then((manager) => {
           managerRef = manager;
           const handler = (ev: any) => subscriber.next(ev);
+
           manager.on(event, handler);
 
           subscriber.add(() => {
             try {
               manager.off(event, handler);
             } catch (e) {
-              console.error(e);
+              console.error(`[Ngxture] Failed to detach gesture handler`, e);
             }
           });
         })
@@ -154,16 +125,6 @@ export class GestureService {
     options?: any
   ): Observable<{ event: string; payload: any }> {
     const el = element instanceof ElementRef ? element.nativeElement : element;
-
-    if (!this.isBrowser) {
-      return new Observable((subscriber) =>
-        subscriber.error(
-          new Error(
-            `[Ngxture] Tried to subscribe to multiple gestures during SSR.`
-          )
-        )
-      );
-    }
 
     return new Observable<{ event: string; payload: any }>((subscriber) => {
       this.getRecognizer(el, type, options)
@@ -182,7 +143,7 @@ export class GestureService {
               try {
                 manager.off(h.name, h.fn);
               } catch (e) {
-                console.error(e);
+                console.error(`[Ngxture] Failed to detach gesture handler`, e);
               }
             });
           });
@@ -197,8 +158,9 @@ export class GestureService {
       try {
         manager.destroy();
       } catch (e) {
-        console.error(e);
+        console.error(`[Ngxture] Failed to destroy Hammer manager`, e);
       }
+
       this.managers.delete(element);
     }
   }
