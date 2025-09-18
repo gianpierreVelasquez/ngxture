@@ -80,37 +80,6 @@ npm install ngxture
   Swipe me
 </div>
 ```
-
-### Combine Animations + Gestures
-
-✅ Example usage
-
-```html
-<div
-  ngxAnimations
-  [gestures]="['tap']"
-  [sequence]="true"
->
-  <div
-    ngxScale
-    [config]="{ scale: 1.3, duration: 300 }"
-  ></div>
-
-  <div
-    ngxRotate
-    [config]="{ degrees: 45, duration: 400 }"
-  ></div>
-
-  <div
-    ngxFade
-    [config]="{ opacity: 0.5, duration: 500 }"
-  ></div>
-</div>
-```
-👉 With this setup:
--> Each directive owns its animation logic.
--> AnimationService coordinates play/sequence.
-
 ---
 
 🤝 Contributing
