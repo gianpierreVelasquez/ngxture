@@ -9,7 +9,7 @@ import {
 import { BaseGestureDirective } from './gesture-base.directive';
 import { GestureService } from '../services/gesture.service';
 
-@Directive({ selector: '[ngxsture-tap]' })
+@Directive({ selector: '[ngxture-tap]' })
 export class TapDirective extends BaseGestureDirective implements OnInit {
   @Output() tap = new EventEmitter<any>();
   @Output() doubleTap = new EventEmitter<any>();

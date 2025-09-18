@@ -9,7 +9,7 @@ import {
 import { GestureService } from '../services/gesture.service';
 import { BaseGestureDirective } from './gesture-base.directive';
 
-@Directive({ selector: '[ngxsture-pan]' })
+@Directive({ selector: '[ngxture-pan]' })
 export class PanDirective extends BaseGestureDirective implements OnInit {
   @Output() panStart = new EventEmitter<any>();
   @Output() panMove = new EventEmitter<any>();

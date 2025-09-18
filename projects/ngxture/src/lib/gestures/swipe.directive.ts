@@ -9,7 +9,7 @@ import {
 import { BaseGestureDirective } from './gesture-base.directive';
 import { GestureService } from '../services';
 
-@Directive({ selector: '[ngxsture-swipe]' })
+@Directive({ selector: '[ngxture-swipe]' })
 export class SwipeDirective extends BaseGestureDirective implements OnInit {
   @Output() swipe = new EventEmitter<any>();
   @Output() swipeLeft = new EventEmitter<any>();

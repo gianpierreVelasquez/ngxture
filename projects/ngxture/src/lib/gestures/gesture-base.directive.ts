@@ -1,4 +1,10 @@
-import { Directive, ElementRef, Input, OnDestroy } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { GestureService } from '../services/gesture.service';
 import { GestureType } from '../services/gesture-util';
@@ -20,13 +26,15 @@ export abstract class BaseGestureDirective implements OnDestroy {
     event: string,
     type: GestureType,
     config: Partial<RecognizerOptions>,
-    callback: (ev: any) => void
+    getEmitterFn: () => EventEmitter<any> | undefined
   ) {
+    const emitter = getEmitterFn();
+    if (!emitter) return;
     const cfg = config || this.gestureOptions;
     const sub = this.gestureService
       .on(event, this.el.nativeElement, type, cfg)
       .subscribe((ev) => {
-        callback(ev);
+        emitter.emit(ev);
         this.onMultiple?.(event, ev);
       });
     this.subscriptions.push(sub);

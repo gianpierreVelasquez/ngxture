@@ -10,7 +10,7 @@ import { BaseGestureDirective } from './gesture-base.directive';
 import { GestureService } from '../services/gesture.service';
 
 @Directive({
-  selector: '[ngxsture-rotate]',
+  selector: '[ngxture-rotate]',
 })
 export class RotateDirective extends BaseGestureDirective {
   @Output() rotateStart = new EventEmitter<any>();

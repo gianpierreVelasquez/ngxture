@@ -9,7 +9,7 @@ import {
 import { BaseGestureDirective } from './gesture-base.directive';
 import { GestureService } from '../services';
 
-@Directive({ selector: '[ngxsture-pinch]' })
+@Directive({ selector: '[ngxture-pinch]' })
 export class PinchDirective extends BaseGestureDirective implements OnInit {
   @Output() pinchStart = new EventEmitter<any>();
   @Output() pinchMove = new EventEmitter<any>();

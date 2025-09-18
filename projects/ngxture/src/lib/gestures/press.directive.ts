@@ -9,7 +9,7 @@ import {
 import { BaseGestureDirective } from './gesture-base.directive';
 import { GestureService } from '../services/gesture.service';
 
-@Directive({ selector: '[ngxsture-press]' })
+@Directive({ selector: '[ngxture-press]' })
 export class PressDirective extends BaseGestureDirective implements OnInit {
   @Output() press = new EventEmitter<any>();
   @Output() pressUp = new EventEmitter<any>();

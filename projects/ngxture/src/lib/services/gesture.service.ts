@@ -1,25 +1,73 @@
 import { Injectable, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs';
 import { loadHammer, HammerConstructor } from '../utils/gesture-loader';
-import { GestureType, defaultGestureConfig } from './gesture-util';
+import {
+  GestureConfig,
+  GestureType,
+  getDefaultGestureConfig,
+} from './gesture-util';
 
 @Injectable({ providedIn: 'root' })
 export class GestureService {
   private managers = new WeakMap<HTMLElement, any>();
+  private HammerInstance: HammerConstructor | null = null;
+  private defaultConfig: GestureConfig[] | null = null;
 
-  private getDefaultOptions(type: GestureType): any {
-    const g = defaultGestureConfig.find((x) => x.type === type);
-    return g?.options || {};
+  private async ensureHammer(): Promise<HammerConstructor> {
+    if (this.HammerInstance) return this.HammerInstance;
+
+    if (typeof window === 'undefined') {
+      throw new Error(
+        '[Ngxture] Gestures cannot be initialized on server (SSR).'
+      );
+    }
+
+    this.HammerInstance = await loadHammer();
+    return this.HammerInstance;
+  }
+
+  private async getDefaultOptions(type: GestureType): Promise<any> {
+    const Hammer = await this.ensureHammer();
+
+    if (!this.defaultConfig) {
+      this.defaultConfig = await getDefaultGestureConfig(Hammer);
+    }
+    const cfg = this.defaultConfig.find((x) => x.type === type);
+    return cfg?.options || {};
   }
 
   private async getManager(element: HTMLElement): Promise<any> {
-    if (this.managers.has(element)) {
-      return this.managers.get(element);
+    if (this.managers.has(element)) return this.managers.get(element);
+
+    if (typeof window === 'undefined') {
+      throw new Error(
+        '[Ngxture] Gestures cannot be initialized on server (SSR).'
+      );
     }
 
-    const Hammer: HammerConstructor = await loadHammer();
-    const manager = new (Hammer as any).Manager(element);
+    const Hammer = await this.ensureHammer();
+    const manager = new Hammer(element);
     this.managers.set(element, manager);
+
+    return manager;
+  }
+
+  private async getRecognizer(
+    element: HTMLElement,
+    type: GestureType,
+    options?: any
+  ): Promise<any> {
+    const Hammer: any = this.ensureHammer();
+    const manager = await this.getManager(element);
+
+    if (!manager.get(type)) {
+      const opts = {
+        ...(this.getDefaultOptions(type) || {}),
+        ...(options || {}),
+      };
+      const recognizer = this.createRecognizer(Hammer, type, opts);
+      manager.add(recognizer);
+    }
 
     return manager;
   }
@@ -66,26 +114,6 @@ export class GestureService {
       default:
         throw new Error(`[Ngxture] Unsupported gesture type: ${type}`);
     }
-  }
-
-  private async getRecognizer(
-    element: HTMLElement,
-    type: GestureType,
-    options?: any
-  ): Promise<any> {
-    const Hammer: any = await loadHammer();
-    const manager = await this.getManager(element);
-
-    if (!manager.get(type)) {
-      const opts = {
-        ...(this.getDefaultOptions(type) || {}),
-        ...(options || {}),
-      };
-      const recognizer = this.createRecognizer(Hammer, type, opts);
-      manager.add(recognizer);
-    }
-
-    return manager;
   }
 
   public on(
